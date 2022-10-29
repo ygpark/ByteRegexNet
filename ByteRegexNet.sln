@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32929.385
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ByteRegexNet", "ByteRegexNet\ByteRegexNet.csproj", "{B9AD876C-7C9C-484A-94AF-3C2BDD6E1AFF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{68D77A8F-9094-472A-8E45-6704AD9C48EB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B9AD876C-7C9C-484A-94AF-3C2BDD6E1AFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9AD876C-7C9C-484A-94AF-3C2BDD6E1AFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9AD876C-7C9C-484A-94AF-3C2BDD6E1AFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9AD876C-7C9C-484A-94AF-3C2BDD6E1AFF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68D77A8F-9094-472A-8E45-6704AD9C48EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68D77A8F-9094-472A-8E45-6704AD9C48EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68D77A8F-9094-472A-8E45-6704AD9C48EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68D77A8F-9094-472A-8E45-6704AD9C48EB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {57609A5C-D4D7-42EE-8167-3098255F3E58}
+	EndGlobalSection
+EndGlobal
