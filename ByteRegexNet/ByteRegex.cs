@@ -1,8 +1,12 @@
-﻿namespace ByteRegexNet
+﻿using System;
+using System.CodeDom;
+using System.Collections.Generic;
+
+namespace ByteRegexNet
 {
     public class ByteRegex
     {
-        private List<ItemBase> target = new List<ItemBase>();
+        private MyArrayList<ItemBase> target = new MyArrayList<ItemBase>();
 
         public static ByteRegex Compile(string pattern)
         {
@@ -10,8 +14,8 @@
             bool inSingleChar = false;
             bool inTimes = false;
 
-            Items? items = null;
-            string? strTimes = string.Empty;
+            Items ?items = null;
+            string strTimes = string.Empty;
             for (int i = 0; i < pattern.Length; i++)
             {
                 //괄호 안과 밖 상태
@@ -52,7 +56,7 @@
                     if (arr.Length == 1)
                     {
                         int minmax = int.Parse(arr[0]);
-                        var lastItem = result.target.Last();
+                        var lastItem = result.target[result.target.Count - 1];
                         lastItem.MinTimes(minmax);
                         lastItem.MaxTimes(minmax);
                     }
@@ -60,7 +64,7 @@
                     {
                         int min = int.Parse(arr[0]);
                         int max = int.Parse(arr[1]);
-                        var lastItem = result.target.Last();
+                        var lastItem = result.target[result.target.Count - 1];
                         lastItem.MinTimes(min);
                         lastItem.MaxTimes(max);
                     }
@@ -136,12 +140,13 @@
 
         public int Match(byte[] data)
         {
+            int dataLength = data.Length;
             //길이 구하기
-            if (data.Length < TargetLen())
+            if (dataLength < TargetLen())
                 return -1;
 
             //전체 순회
-            for (int i = 0; i < data.Length; i++)
+            for (int i = 0; i < dataLength; i++)
             {
                 int cursor = i;
 
@@ -149,14 +154,15 @@
                 for (int tidx = 0; tidx < target.Count; tidx++)
                 {
                     int hit = 0;
-                    int min = target[tidx].MinTimes();
-                    int max = target[tidx].MaxTimes();
+                    ItemBase ib = target[tidx];
+                    int min = ib.MinTimes();
+                    int max = ib.MaxTimes();
 
                     //최대 횟수만큼 탐색
                     for (int j = 0; j < max; j++)
                     {
                         // index out of rage
-                        if (data.Length - 1 < cursor)
+                        if (dataLength - 1 < cursor)
                             break;
 
                         if (target[tidx].CompareTo(data[cursor]) == 0)
@@ -172,15 +178,11 @@
                         }
                     }
 
-
-
-                    // 틀림
                     if (hit < min || max < hit)
                     {
                         break;
                     }
 
-                    // 탈출조건 다시
                     if (tidx == target.Count - 1)
                         return i;
                 }
@@ -192,9 +194,9 @@
         private int TargetLen()
         {
             int rst = 0;
-            foreach (var item in target)
+            for (int i = 0; i < target.Count; i++)
             {
-                rst += item.MinTimes();
+                rst += target[i].MinTimes();
             }
             return rst;
         }
@@ -263,6 +265,41 @@
             public override int CompareTo(byte other)
             {
                 return (0 < values[other]) ? 0/*equal*/ : 1;
+            }
+        }
+
+        public class MyArrayList<T>
+        {
+            public T[] arr;
+            public int Capability = 2;
+            public int Count = 0;
+
+            public MyArrayList()
+            {
+                arr = new T[Capability];
+            }
+            public T this[int key]
+            {
+                get
+                {
+                    return arr[key];
+                }
+            }
+
+            public void Add(T t)
+            {
+                arr[Count++] = t;
+                if (Count >= Capability)
+                {
+                    T[] tmp = arr;
+                    int oldCapability = Capability;
+                    int newCapability = Capability * 2;
+                    T[] tmp2 = new T[newCapability];
+                    Array.Copy(tmp, tmp2, oldCapability);
+                    arr = tmp2;
+
+                    Capability = newCapability;
+                }
             }
         }
     }
