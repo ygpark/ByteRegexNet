@@ -1,6 +1,7 @@
 ﻿using System;
 using System.CodeDom;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace ByteRegexNet
 {
@@ -118,13 +119,13 @@ namespace ByteRegexNet
                     //=====================================
                     //else if (pattern[i] == '*')//0개 이상
                     //{
-                    //    var lastItem = result.target.Last();
+                    //    var lastItem = result.regexObjList.Last();
                     //    lastItem.MinTimes(0);
                     //    lastItem.MaxTimes(-1);//endless
                     //}
                     //else if (pattern[i] == '+')//0개 이상
                     //{
-                    //    var lastItem = result.target.Last();
+                    //    var lastItem = result.regexObjList.Last();
                     //    lastItem.MinTimes(1);
                     //    lastItem.MaxTimes(-1);//endless
                     //}
