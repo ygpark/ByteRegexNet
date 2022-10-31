@@ -1,7 +1,7 @@
 ﻿using System;
 using System.CodeDom;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
+using dotnet = System.Text.RegularExpressions;
 
 namespace ByteRegexNet
 {
@@ -9,9 +9,14 @@ namespace ByteRegexNet
     {
         private MyArrayList<RegexObject> regexObjList = new MyArrayList<RegexObject>();
 
-        public static ByteRegex Compile(string pattern)
+        public ByteRegex(string pattern)
         {
-            ByteRegex result = new ByteRegex();
+            Compile(pattern);
+        }
+
+        public void Compile(string pattern)
+        {
+            //ByteRegex result = new ByteRegex(pattern);
             bool inSingleChar = false;
             bool inTimes = false;
 
@@ -31,7 +36,7 @@ namespace ByteRegexNet
                 {
                     if (items != null)
                     {
-                        result.regexObjList.Add(items);
+                        regexObjList.Add(items);
                     }
 
                     items = null;
@@ -57,7 +62,7 @@ namespace ByteRegexNet
                     if (arr.Length == 1)
                     {
                         int minmax = int.Parse(arr[0]);
-                        var lastItem = result.regexObjList[result.regexObjList.Count - 1];
+                        var lastItem = regexObjList[regexObjList.Count - 1];
                         lastItem.MinTimes(minmax);
                         lastItem.MaxTimes(minmax);
                     }
@@ -65,7 +70,7 @@ namespace ByteRegexNet
                     {
                         int min = int.Parse(arr[0]);
                         int max = int.Parse(arr[1]);
-                        var lastItem = result.regexObjList[result.regexObjList.Count - 1];
+                        var lastItem = regexObjList[regexObjList.Count - 1];
                         lastItem.MinTimes(min);
                         lastItem.MaxTimes(max);
                     }
@@ -111,7 +116,7 @@ namespace ByteRegexNet
                     {
                         RegexItems any = new RegexItems();
                         any.EnableAll();
-                        result.regexObjList.Add(any);
+                        regexObjList.Add(any);
                     }
                     //=====================================
                     // *와 + 기호 미지원에 대한 내용
@@ -119,24 +124,32 @@ namespace ByteRegexNet
                     //=====================================
                     //else if (pattern[i] == '*')//0개 이상
                     //{
-                    //    var lastItem = result.regexObjList.Last();
+                    //    var lastItem = regexObjList.Last();
                     //    lastItem.MinTimes(0);
                     //    lastItem.MaxTimes(-1);//endless
                     //}
                     //else if (pattern[i] == '+')//0개 이상
                     //{
-                    //    var lastItem = result.regexObjList.Last();
+                    //    var lastItem = regexObjList.Last();
                     //    lastItem.MinTimes(1);
                     //    lastItem.MaxTimes(-1);//endless
                     //}
                     else
                     {
-                        result.regexObjList.Add(new RegexItem() { value = (byte)pattern[i] });
+                        regexObjList.Add(new RegexItem() { value = (byte)pattern[i] });
                     }
                 }
             }
+        }
+        public static int Match(byte[] buffer, string pattern)
+        {
+            ByteRegex regex = new ByteRegex(pattern);
+            return regex.Match(buffer);
+        }
 
-            return result;
+        public void PlayGround()
+        {
+            //dotnet.Regex r = new dotnet.Regex(pattern)
         }
 
         public int Match(byte[] buffer)

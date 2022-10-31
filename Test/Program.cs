@@ -26,15 +26,11 @@ data[97] = (byte)'\x90';
 data[98] = (byte)'f';
 data[99] = (byte)'f';
 
-ByteRegex regex = ByteRegex.Compile("a.CD");
-Console.WriteLine(regex.Match(data));
+Console.WriteLine(ByteRegex.Match(data, "a.CD"));
 
-regex = ByteRegex.Compile("e.{60,90}[{]");
-Console.WriteLine(regex.Match(data));
+Console.WriteLine(ByteRegex.Match(data, "e.{60,90}[{]"));
 
-regex = ByteRegex.Compile("e[\x90]ff");
-Console.WriteLine(regex.Match(data));
+Console.WriteLine(ByteRegex.Match(data, "e[\x90]ff"));
 
-regex = ByteRegex.Compile("a[a-zA-Z]{4}");
-Console.WriteLine(regex.Match(data));
+Console.WriteLine(ByteRegex.Match(data, "a[a-zA-Z]{4}"));
 
