@@ -6,7 +6,7 @@ namespace ByteRegexNet
 {
     public class ByteRegex
     {
-        private MyArrayList<ItemBase> target = new MyArrayList<ItemBase>();
+        private MyArrayList<RegexObject> regexObjList = new MyArrayList<RegexObject>();
 
         public static ByteRegex Compile(string pattern)
         {
@@ -14,14 +14,14 @@ namespace ByteRegexNet
             bool inSingleChar = false;
             bool inTimes = false;
 
-            Items ?items = null;
+            RegexItems ?items = null;
             string strTimes = string.Empty;
             for (int i = 0; i < pattern.Length; i++)
             {
                 //괄호 안과 밖 상태
                 if (!inSingleChar && pattern[i] == '[')
                 {
-                    items = new Items();
+                    items = new RegexItems();
                     inSingleChar = true;
                     continue;
                 }
@@ -30,7 +30,7 @@ namespace ByteRegexNet
                 {
                     if (items != null)
                     {
-                        result.target.Add(items);
+                        result.regexObjList.Add(items);
                     }
 
                     items = null;
@@ -56,7 +56,7 @@ namespace ByteRegexNet
                     if (arr.Length == 1)
                     {
                         int minmax = int.Parse(arr[0]);
-                        var lastItem = result.target[result.target.Count - 1];
+                        var lastItem = result.regexObjList[result.regexObjList.Count - 1];
                         lastItem.MinTimes(minmax);
                         lastItem.MaxTimes(minmax);
                     }
@@ -64,7 +64,7 @@ namespace ByteRegexNet
                     {
                         int min = int.Parse(arr[0]);
                         int max = int.Parse(arr[1]);
-                        var lastItem = result.target[result.target.Count - 1];
+                        var lastItem = result.regexObjList[result.regexObjList.Count - 1];
                         lastItem.MinTimes(min);
                         lastItem.MaxTimes(max);
                     }
@@ -108,9 +108,9 @@ namespace ByteRegexNet
                     //특수문자
                     if (pattern[i] == '.')
                     {
-                        Items any = new Items();
+                        RegexItems any = new RegexItems();
                         any.EnableAll();
-                        result.target.Add(any);
+                        result.regexObjList.Add(any);
                     }
                     //=====================================
                     // *와 + 기호 미지원에 대한 내용
@@ -130,7 +130,7 @@ namespace ByteRegexNet
                     //}
                     else
                     {
-                        result.target.Add(new Item() { value = (byte)pattern[i] });
+                        result.regexObjList.Add(new RegexItem() { value = (byte)pattern[i] });
                     }
                 }
             }
@@ -138,41 +138,42 @@ namespace ByteRegexNet
             return result;
         }
 
-        public int Match(byte[] data)
+        public int Match(byte[] buffer)
         {
-            int dataLength = data.Length;
+            int bufferLength = buffer.Length;
             //길이 구하기
-            if (dataLength < TargetLen())
+            if (bufferLength < TargetLen())
                 return -1;
 
             //전체 순회
-            for (int i = 0; i < dataLength; i++)
+            for (int i = 0; i < bufferLength; i++)
             {
                 int cursor = i;
 
                 //정규식 순회
-                for (int tidx = 0; tidx < target.Count; tidx++)
+                for (int j = 0; j < regexObjList.Count; j++)
                 {
                     int hit = 0;
-                    ItemBase ib = target[tidx];
+                    RegexObject ib = regexObjList[j];
                     int min = ib.MinTimes();
                     int max = ib.MaxTimes();
 
-                    //최대 횟수만큼 탐색
-                    for (int j = 0; j < max; j++)
+                    //RegexItem의 최대 반복회수(MaxTimes)만큼 탐색.
+                    //단, 최소 반복회수를 만족하면서 다음 regexItem이 같으면 중단한다.
+                    for (int riIdx = 0; riIdx < max; riIdx++)
                     {
                         // index out of rage
-                        if (dataLength - 1 < cursor)
+                        if (bufferLength - 1 < cursor)
                             break;
 
-                        if (target[tidx].CompareTo(data[cursor]) == 0)
+                        if (regexObjList[j].CompareTo(buffer[cursor]) == 0)
                         {
                             hit++;
                             cursor++;
                         }
 
                         // 최소 횟수를 만족하면서 다음 찾을 값이 같으면 max까지 탐색하지 않는다.
-                        if (min <= hit && hit <= max && tidx + 1 < target.Count && target[tidx + 1].CompareTo(data[cursor]) == 0)
+                        if (min <= hit && hit <= max && j + 1 < regexObjList.Count && regexObjList[j + 1].CompareTo(buffer[cursor]) == 0)
                         {
                             break;
                         }
@@ -183,7 +184,7 @@ namespace ByteRegexNet
                         break;
                     }
 
-                    if (tidx == target.Count - 1)
+                    if (j == regexObjList.Count - 1)
                         return i;
                 }
             }
@@ -194,15 +195,15 @@ namespace ByteRegexNet
         private int TargetLen()
         {
             int rst = 0;
-            for (int i = 0; i < target.Count; i++)
+            for (int i = 0; i < regexObjList.Count; i++)
             {
-                rst += target[i].MinTimes();
+                rst += regexObjList[i].MinTimes();
             }
             return rst;
         }
 
 
-        abstract class ItemBase : IComparable<byte>, IRange
+        abstract class RegexObject : IComparable<byte>, IRange
         {
             private int minTimes = 1;
             private int maxTimes = 1;
@@ -225,7 +226,7 @@ namespace ByteRegexNet
             void MaxTimes(int value);
         }
 
-        class Item : ItemBase
+        class RegexItem : RegexObject
         {
             public byte value;
 
@@ -235,7 +236,7 @@ namespace ByteRegexNet
             }
         }
 
-        class Items : ItemBase
+        class RegexItems : RegexObject
         {
             public byte[] values = new byte[256];
 
@@ -268,10 +269,15 @@ namespace ByteRegexNet
             }
         }
 
+        //
+        /// <summary>
+        /// (2022-10-31) 2배씩 늘어나는 배열. 정규식 컴파일 용도로만 사용하기 때문에 추가와 읽기만 있고 삭제는 없다.
+        ///              따라서 Add(T)메소드와 []프로퍼티만 지원한다.
+        /// </summary>
         public class MyArrayList<T>
         {
             public T[] arr;
-            public int Capability = 2;
+            public int Capability = 1024;
             public int Count = 0;
 
             public MyArrayList()
